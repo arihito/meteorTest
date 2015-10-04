@@ -4,7 +4,9 @@ if (Meteor.isClient) {
   // This code only runs on the client
   Template.body.helpers({
     tasks: function () {
-      return Tasks.find({});
+      //mongoDBの中の情報をTasks変数内に取得
+      //createAt:-1で新しい順
+      return Tasks.find({},{sort: {createAt: -1}});
     }
   });
 
