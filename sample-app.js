@@ -14,11 +14,11 @@ if (Meteor.isClient) {
       }
     },
     //HTML上でチェックをとるとセッション変数のhideCompletedの値が取れる
-    hideCompleted: function() {
+    hideCompleted: function () {
       return Session.get("hideCompleted");
     },
     //チェックした数をカウント
-    incompleteCount: function() {
+    incompleteCount: function () {
       return Tasks.find({checked: {$ne: true}}).count();
     }
   });
@@ -30,10 +30,15 @@ if (Meteor.isClient) {
       //textフォームの入力値の取得
       var text = event.target.text.value;
       //mongoDBへの登録
-      Tasks.insert({
-        text: text,
-        createdAt: new Date() // current time
-      });
+      // Tasks.insert({
+      //   text: text,
+      //   createdAt: new Date(), //現在時間
+      //   owner: Meteor.userId(),//ログインユーザIDをを返す
+      //   username: Meteor.user().username
+      // });
+      // クライアント側のコードの呼び出し
+      Meteor.call("addTask", text);
+
       event.target.text.value = "";
     },
     //チェックボックスを変更する度にhideCompletedというセッション変数に値が設定される
@@ -45,16 +50,20 @@ if (Meteor.isClient) {
   // チェックボックスと削除ボタンの機能追加
   // taskテンプレートに設定
   Template.task.events({
-    "click .toggle-checked": function() {
-      // 第1引数のidを第2引数に渡してデータを更新
-      Tasks.update(this._id, {
-        // checkedというプロパティに変更前のcheckboxの値を代入
-        $set: {checked: ! this.checked}
-      });
+    "click .toggle-checked": function () {
+      // // 第1引数のidを第2引数に渡してデータを更新
+      // Tasks.update(this._id, {
+      //   // checkedというプロパティに変更前のcheckboxの値を代入
+      //   $set: {checked: ! this.checked}
+      // });
+      // クライアント側のコードの呼び出し
+      Meteor.call("setChecked", this._id, ! this.checked);
     },
-    "click .delete": function() {
+    "click .delete": function () {
       // 削除するデータをidに渡す
-      Tasks.remove(this._id);
+      // Tasks.remove(this._id);
+      // クライアント側のコードの呼び出し
+      Meteor.call("deleteTask", this._id);
     }
   });
 
@@ -62,3 +71,22 @@ if (Meteor.isClient) {
     passwordSignupFields: "USERNAME_ONLY"
   });
 }
+ Meteor.methods({
+    addTasks: function(text) {
+      if(! Meteor.userId()) {
+        throw new Meteor.Error("not-authorized");
+      }
+      Tasks.insert({
+        text: text,
+        createdAt: new Date(),
+        owner: Meteor.userId(),
+        username: Meteor.user().username
+      });
+    },
+    deleteTask: function(taskId) {
+      Tasks.remove(taskId);
+    },
+    setChecked: function (taskId, setChecked) {
+      Tasks.update(taskId, { $set: { checked: setChecked }});
+    }
+  })
