@@ -1,7 +1,7 @@
 Tasks = new Mongo.Collection("tasks");
 
 if (Meteor.isClient) {
-  // Meteorが実行すると起動するイベントハンドラ
+  // Meteorが実行すると起動する
   Template.body.helpers({
     tasks: function () {
       if (Session.get("hideCompleted")) {
@@ -13,9 +13,13 @@ if (Meteor.isClient) {
         return Tasks.find({}, {sort: {createdAt: -1}});
       }
     },
-    // HTML上でチェックをとるとセッション変数のhideCompletedの値が取れる
+    //HTML上でチェックをとるとセッション変数のhideCompletedの値が取れる
     hideCompleted: function() {
       return Session.get("hideCompleted");
+    },
+    //チェックした数をカウント
+    incompleteCount: function() {
+      return Tasks.find({checked: {$ne: true}}).count();
     }
   });
 
