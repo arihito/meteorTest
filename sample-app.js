@@ -2,13 +2,13 @@ Tasks = new Mongo.Collection("tasks");
 
 if (Meteor.isServer) {
   // Tasksのオブジェクトを全てtasks変数で送信
-  Meteor.publish("tasks", function() {
+  Meteor.publish("tasks", function () {
     // 所有者が自分であるタスクをオブジェクトから抽出
     return Tasks.find({
       $or: [
         { private: {$ne: true} },
-        { owner: this.userId}
-        ]
+        { owner: this.userId }
+      ]
     });
   });
 }
@@ -56,7 +56,7 @@ if (Meteor.isClient) {
       event.target.text.value = "";
     },
     //チェックボックスを変更する度にhideCompletedというセッション変数に値が設定される
-    "change .hide-completed input": function(event) {
+    "change .hide-completed input": function (event) {
       Session.set("hideCompleted", event.target.checked);
     }
   });
@@ -65,7 +65,7 @@ if (Meteor.isClient) {
     isOwner: function () {
       return this.owner === Meteor.userId();
     }
-  })
+  });
 
   // チェックボックスと削除ボタンの機能追加
   // taskテンプレートに設定
@@ -85,7 +85,7 @@ if (Meteor.isClient) {
       // クライアント側のコードの呼び出し
       Meteor.call("deleteTask", this._id);
     },
-    "click .toggle-private": function() {
+    "click .toggle-private": function () {
       Meteor.call("setPrivate", this._id, ! this.private);
     }
 
@@ -95,9 +95,9 @@ if (Meteor.isClient) {
     passwordSignupFields: "USERNAME_ONLY"
   });
 }
- Meteor.methods({
-  addTasks: function(text) {
-    if(! Meteor.userId()) {
+Meteor.methods({
+  addTask: function (text) {
+    if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorized");
     }
     Tasks.insert({
@@ -107,7 +107,7 @@ if (Meteor.isClient) {
       username: Meteor.user().username
     });
   },
-  deleteTask: function(taskId) {
+  deleteTask: function (taskId) {
     var task = Tasks.findOne(taskId);
     if (task.private && task.owner !== Meteor.userId()) {
       throw new Meteor.Error("not-authorized");
@@ -119,11 +119,11 @@ if (Meteor.isClient) {
     if(task.private && task.owner !== Meteor.userId()) {
       throw new Meteor.Error("not-authorized");
     }
-    Tasks.update(taskId, { $set: { checked: setChecked }});
+    Tasks.update(taskId, { $set: { checked: setChecked} });
   },
-  setPrivate: function(taskId, setToPrivate) {
+  setPrivate: function (taskId, setToPrivate) {
     var task = Tasks.findOne(taskId);
-    if(task.owner !== Meteor.userId()) {
+    if (task.owner !== Meteor.userId()) {
       throw new Meteor.Error("not-authorized");
     }
     Tasks.update(taskId, { $set: { private: setToPrivate} });
