@@ -26,13 +26,17 @@ if (Meteor.isClient) {
   })
 
   // チェックボックスと削除ボタンの機能追加
+  // taskテンプレートに設定
   Template.task.events({
     "click .toggle-checked": function() {
+      // 第1引数のidを第2引数に渡してデータを更新
       Tasks.update(this._id, {
+        // checkedというプロパティに変更前のcheckboxの値を代入
         $set: {checked: ! this.checked}
       });
     },
     "click .delete": function() {
+      // 削除するデータをidに渡す
       Tasks.remove(this._id);
     }
   })
