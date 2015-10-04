@@ -3,8 +3,14 @@ Tasks = new Mongo.Collection("tasks");
 if (Meteor.isServer) {
   // Tasksのオブジェクトを全てtasks変数で送信
   Meteor.publish("tasks", function() {
-    return Tasks.find();
-  })
+    // 所有者が自分であるタスクをオブジェクトから抽出
+    return Tasks.find({
+      $or: [
+        { private: {$ne: true} },
+        { owner: this.userId}
+        ]
+    });
+  });
 }
 
 if (Meteor.isClient) {
@@ -102,9 +108,17 @@ if (Meteor.isClient) {
     });
   },
   deleteTask: function(taskId) {
+    var task = Tasks.findOne(taskId);
+    if (task.private && task.owner !== Meteor.userId()) {
+      throw new Meteor.Error("not-authorized");
+    }
     Tasks.remove(taskId);
   },
   setChecked: function (taskId, setChecked) {
+    var task = Tasks.findOne(taskId);
+    if(task.private && task.owner !== Meteor.userId()) {
+      throw new Meteor.Error("not-authorized");
+    }
     Tasks.update(taskId, { $set: { checked: setChecked }});
   },
   setPrivate: function(taskId, setToPrivate) {
