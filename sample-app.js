@@ -1,7 +1,7 @@
 Tasks = new Mongo.Collection("tasks");
 
 if (Meteor.isClient) {
-  // This code only runs on the client
+  // Meteorが実行すると起動するイベントハンドラ
   Template.body.helpers({
     tasks: function () {
       //mongoDBの中の情報をTasks変数内に取得
