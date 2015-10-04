@@ -1,7 +1,6 @@
 <head>
   <title>sample-app</title>
 </head>
-
 <body>
 	<div class="container">
 		<header>
@@ -9,12 +8,13 @@
 		</header>
 		<ul>
 			{{#each tasks}}
+			<!--テンプレートの呼び出し-->
 				{{> task}}
 			{{/each}}
 		</ul>
 	</div>
 </body>
-
+<!-- bodyの外に定義 -->
 <template name="task">
 	<li>{{text}}</li>
 </template>
