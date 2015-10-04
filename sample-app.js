@@ -4,9 +4,18 @@ if (Meteor.isClient) {
   // Meteorが実行すると起動するイベントハンドラ
   Template.body.helpers({
     tasks: function () {
-      //mongoDBの中の情報をTasks変数内に取得
-      //createAt:-1で新しい順
-      return Tasks.find({},{sort: {createdAt: -1}});
+      if (Session.get("hideCompleted")) {
+        //hideCompletedが設定されている場合checkedが無いものだけに絞り込まれる
+        return Tasks.find(checked: {$ne: true}, {sort: {createdAt: -1}});
+      } else {
+        //mongoDBの中の情報をTasks変数内に取得
+        //createAt:-1で新しい順
+        return Tasks.find({}, {sort: {createdAt: -1}});
+      }
+    },
+    // HTML上でチェックをとるとセッション変数のhideCompletedの値が取れる
+    hideCompleted: function() {
+      return Session.get("hideCompleted");
     }
   });
 
@@ -22,6 +31,10 @@ if (Meteor.isClient) {
         createdAt: new Date() // current time
       });
       event.target.text.value = "";
+    },
+    //チェックボックスを変更する度にhideCompletedというセッション変数に値が設定される
+    "change .hide-completed input": function(event) {
+      Session.set("hideCompleted", event.target.checked);
     }
   })
 
